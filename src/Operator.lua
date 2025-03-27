@@ -71,7 +71,7 @@ function Operator:Initialize()
 	local CastParams = Handler.RaycastParams
 
 	local Folder = Functions.GetFolder(FolderName)
-	local Object = Functions.GetDroplet(Handler.SplashName)
+	local Object = Functions.GetDroplet(Handler.SplashName, Type == "ProjectedDecal")
 
 	-- Class definitions
 	local Cache = PartCache.new(Object, Limit, Folder)
@@ -239,7 +239,7 @@ function Operator:Emit(Origin: Vector3, Direction: Vector3, Data: Settings.Class
 	Data = Clone
 
 	-- Variable definitions
-	local IsDecal = Data.Type == "Decal"
+	local IsProjected = Data.Type == "ProjectedDecal"
 	local DropletVelocity = Data.DropletVelocity
 	local Velocity = Functions.NextNumber(Unpack(DropletVelocity)) * 10
 
@@ -260,10 +260,15 @@ function Operator:Emit(Origin: Vector3, Direction: Vector3, Data: Settings.Class
 
 	local RayInfo = ActiveDroplet.RayInfo
 	local Droplet: MeshPart = RayInfo.CosmeticBulletObject
-	
-	-- Update the mesh's look and color
-	Droplet:ApplyMesh(MeshMap[Data.Type])
-	Droplet.Color = Data.DropletColor
+
+	-- Add bones so my family doesnt have a seizure
+	if not IsProjected then
+		-- Update the mesh's look and color
+		Droplet:ApplyMesh(MeshMap[Data.Type])
+		Droplet.Color = Data.DropletColor
+	else
+		Droplet.Color = Data.DropletColor
+	end
 	
 	-- Assign the registry entry and update the attributes
 	self.Registry[Droplet] = Data

@@ -138,23 +138,36 @@ end
 --[[
 	Returns an empty object template that's going to be used as a droplet.
 ]]
-function Functions.GetDroplet(ImpactName: string, IsDecal: boolean): {}
+function Functions.GetDroplet(ImpactName: string, IsProjected: boolean): {}
 	-- Variable definitions
-	local Droplet = Instance.new("MeshPart")
 	
 	-- Update properties
-	Droplet.Size = Vector3.new(0.1, 0.1, 0.1)
-	Droplet.Transparency = 0.25
-	Droplet.Material = Enum.Material.Glass
-	
-	Droplet.Anchored = false
-	Droplet.CanCollide = false
-	Droplet.CanQuery = false
-	Droplet.CanTouch = false
+	if not IsProjected then
+		local Droplet = Instance.new("MeshPart")
+
+		Droplet.Size = Vector3.new(0.1, 0.1, 0.1)
+		Droplet.Transparency = 0.25
+		Droplet.Material = Enum.Material.Glass
+		
+		Droplet.Anchored = false
+		Droplet.CanCollide = false
+		Droplet.CanQuery = false
+		Droplet.CanTouch = false
+
+		Functions.CreateEffects(Droplet, ImpactName)
+		return Droplet
+	else
+		local Droplet = Assets.Meshes.ProjectedDecal:Clone()
+		Droplet.Anchored = false
+		Droplet.CanQuery = false
+		Droplet.CanTouch = false
+		Droplet.CanCollide = false
+
+		Functions.CreateEffects(Droplet, ImpactName)
+		return Droplet
+	end
 	
 	-- Export droplet
-	Functions.CreateEffects(Droplet, ImpactName)
-	return Droplet
 end
 
 --[[
