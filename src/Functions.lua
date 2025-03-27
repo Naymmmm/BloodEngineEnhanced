@@ -265,12 +265,63 @@ function Functions.ResetDroplet(Object: Instance, Original: Instance)
 end
 
 --[[
+  Updates a Projected Decal by using Raycasts.
+]]
+function Functions.UpdatePlane(Plane)
+	local RayParams = RaycastParams.new()
+	RayParams.FilterType = Enum.RaycastFilterType.Exclude
+
+	local Success = {}
+	local Failure = {}
+	
+	for _,Point in pairs(Plane:GetChildren()) do
+		if Point:IsA("Bone") then
+			
+			if Point:GetAttribute("OriginalPosition") == nil then
+				Point:SetAttribute("OriginalPosition",Point.Position/Plane.Size)
+			end
+			
+			Point.Position = Point:GetAttribute("OriginalPosition")*Plane.Size
+			
+			local RayResults = workspace:Raycast(Point.WorldPosition,Plane.CFrame.UpVector*-Plane:GetAttribute("RayRange"),RayParams)
+			if RayResults then
+				table.insert(Success,Point)
+				Point.WorldPosition = RayResults.Position+RayResults.Normal*Plane:GetAttribute("Offset")
+			else
+				table.insert(Failure,Point)
+			end
+		end
+	end
+
+	if #Success > 0 then
+		for _,Point in pairs(Failure) do
+
+			local Nearest = nil
+			local NearestDist = math.huge
+			for _,Point2 in pairs(Success) do
+				local Dist = (Point:GetAttribute("OriginalPosition")*Plane.Size-Point2:GetAttribute("OriginalPosition")*Plane.Size).Magnitude
+				if Dist < NearestDist then
+					NearestDist = Dist
+					Nearest = Point2
+				end
+			end
+
+			Point.WorldPosition = Nearest.WorldPosition
+		end
+	end
+end
+
+--[[
 	Manages the sequence of decals;
 	initiates only when the Type is designated as Decals.
 ]]
-function Functions.ApplyDecal(Object: Instance, IsDecal: boolean)
-	if not IsDecal then
+function Functions.ApplyDecal(Object: Instance, IsDecal: boolean, IsProjected: boolean)
+	if not IsDecal and not IsProjected then
 		return
+	end	
+
+	if IsProjected then
+		Functions.UpdatePlane(Object)
 	end
 
 	-- Variable definitions

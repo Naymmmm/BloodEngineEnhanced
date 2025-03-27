@@ -34,6 +34,7 @@ local ExpandAttribute = "Expanding"
 local MeshMap = {
 	Default = Meshes.Droplet,
 	Decal = Meshes.Decal,
+	ProjectedDecal = Meshes.ProjectedDecal,
 }
 
 -- Type definitions
@@ -138,7 +139,7 @@ function Operator:InitializeCast()
 		local YRange = RegistryData.YSize
 		local Distance = RegistryData.Distance
 		local Expansion = RegistryData.Expansion
-		local IsDecal = RegistryData.Type == "Decal"
+		local IsDecal = RegistryData.Type == "Decal" or RegistryData.Type == "ProjectedDecal"
 
 		-- Variable definitions
 		local CastInstance = RaycastResult.Instance
@@ -284,6 +285,7 @@ function Operator:UpdateDroplet(Object: BasePart, Data: Settings.Class)
 	local DropletTrail = Data.Trail
 	local DropletVisible = Data.DropletVisible
 	local IsDecal = Data.Type == "Decal"
+	local IsProjected = Data.Type == "ProjectedDecal"
 
 	-- Object definitions
 	local Trail = Object:FindFirstChildOfClass("Trail")
@@ -293,7 +295,7 @@ function Operator:UpdateDroplet(Object: BasePart, Data: Settings.Class)
 	Trail.Enabled = DropletTrail
 
 	-- Execute essential functions
-	Functions.ApplyDecal(Object, IsDecal)
+	Functions.ApplyDecal(Object, IsDecal, IsProjected)
 end
 
 --[[
@@ -344,7 +346,7 @@ function Operator:HitEffects(Object, Velocity: Vector3, Data: Settings.Class)
 	local SplashAmount = Data.SplashAmount
 	local SplashByVelocity = Data.SplashByVelocity
 	local Divider = Data.VelocityDivider
-	local IsDecal = Data.Type == "Decal"
+	local IsDecal = Data.Type == "Decal" or Data.Type == "ProjectedDecal"
 
 	local Magnitude = Velocity.Magnitude
 	local FinalVelocity = Magnitude / Divider
@@ -376,7 +378,7 @@ function Operator:Expanse(
 	-- Variable definitions
 	local Divider = Data.ExpanseDivider
 	local MaximumSize = Data.MaximumSize
-	local IsDecal = Data.Type == "Decal"
+	local IsDecal = Data.Type == "Decal" or Data.Type == "ProjectedDecal"
 
 	-- Info definitions
 	local Tweens = Data.Tweens
